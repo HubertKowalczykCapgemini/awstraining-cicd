@@ -10,12 +10,25 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+
+
 
 class SmokeBackendTest {
 
     private MeasurementsApi measurementsApi;
     private ApiClient apiClient;
+    private static HttpClient client;
 
     private static PropertyHandler propertyHandler;
 
@@ -48,86 +61,79 @@ class SmokeBackendTest {
     }
 
 
-//     // ================================================
-//     // CURL #1: curl http://LB
-//     // ================================================
-//     @Test
-//     void smoke_rootEndpoint() throws Exception {
-//         apiClient.
 
-//         String response = apiClient.invokeAPI(
-//                 "/",               // path
-//                 "GET",             // method
-//                 new HashMap<>(),
-//                 null,
-//                 new HashMap<>(),
-//                 new HashMap<>(),
-//                 new HashMap<>(),
-//                 "text/plain",
-//                 null,
-//                 new String[]{}
-//         ).toString();
 
-//         System.out.println("Smoke GET / => " + response);
-//         assertNotNull(response);
-//     }
+    @Test
+    void smoke_root() throws Exception {
+        String url = propertyHandler.getUrl();
 
-//     // =====================================================
-//     // CURL #2: curl -vk http://LB/device/v1/test -u user:pass
-//     // =====================================================
-//     @Test
-//     void smoke_deviceTestGet() throws Exception {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
 
-//         String response = apiClient.invokeAPI(
-//                 "/device/v1/test",
-//                 "GET",
-//                 new HashMap<>(),
-//                 null,
-//                 new HashMap<>(),
-//                 new HashMap<>(),
-//                 new HashMap<>(),
-//                 "application/json",
-//                 null,
-//                 new String[]{}
-//         ).toString();
+        HttpResponse<String> response =
+                client.send(req, HttpResponse.BodyHandlers.ofString());
 
-//         System.out.println("Smoke GET /device/v1/test => " + response);
-//         assertNotNull(response);
-//     }
+        System.out.println("GET / => " + response.body());
+        assertTrue(response.statusCode() < 500, "Root endpoint should respond");
+    }
 
-//     // =====================================================================
-//     // CURL #3:
-//     // curl -X POST http://LB/device/v1/test -H "Content-Type: application/json"
-//     //      -u user:pass
-//     //      -d '{ "type": "test", "value": -510.190 }'
-//     // =====================================================================
-//     @Test
-//     void smoke_deviceTestPost() throws Exception {
+    // ========================================
+    // 2. curl -u user:pass http://LB/device/v1/test
+    // ========================================
+    @Test
+    void smoke_deviceTestGet() throws Exception {
+        String url = propertyHandler.getUrl() + "/device/v1/test";
 
-//         Map<String, Object> body = new HashMap<>();
-//         body.put("type", "test");
-//         body.put("value", -510.190);
+        String auth = propertyHandler.getUsername() + ":" + propertyHandler.getPassword();
+        String encoded = Base64.getEncoder().encodeToString(auth.getBytes());
 
-//         Map<String, String> headers = new HashMap<>();
-//         headers.put("Content-Type", "application/json");
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Basic " + encoded)
+                .GET()
+                .build();
 
-//         String response = apiClient.invokeAPI(
-//                 "/device/v1/test",
-//                 "POST",
-//                 new HashMap<>(),
-//                 body,               // JSON BODY
-//                 headers,            // headers including Content-Type
-//                 new HashMap<>(),
-//                 new HashMap<>(),
-//                 "application/json",
-//                 "application/json",
-//                 new String[]{}
-//         ).toString();
+        HttpResponse<String> response =
+                client.send(req, HttpResponse.BodyHandlers.ofString());
 
-//         System.out.println("Smoke POST /device/v1/test => " + response);
-//         assertNotNull(response);
-//     }
-// }
+        System.out.println("GET /device/v1/test => " + response.body());
+        assertTrue(response.statusCode() < 500);
+    }
+
+    // =================================================================
+    // 3. curl -X POST -u user:pass -H "Content-Type: application/json"
+    //        -d '{ "type":"test", "value": -510.190 }'
+    // =================================================================
+    @Test
+    void smoke_deviceTestPost() throws Exception {
+        String url = propertyHandler.getUrl() + "/device/v1/test";
+
+        String auth = propertyHandler.getUsername() + ":" + propertyHandler.getPassword();
+        String encoded = Base64.getEncoder().encodeToString(auth.getBytes());
+
+        String json = """
+                {
+                    "type": "test",
+                    "value": -510.190
+                }
+                """;
+
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Basic " + encoded)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response =
+                client.send(req, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("POST /device/v1/test => " + response.body());
+        assertTrue(response.statusCode() < 500);
+    }
+
     @Test
     void testSomething() {
         // <<TODO: test something>>
