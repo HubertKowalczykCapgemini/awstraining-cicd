@@ -46,7 +46,7 @@ jobs:
 
         - name: "Set up docker"
           uses: "docker/setup-buildx-action@v2"
-          
+
         - name: "build with maven"
           run: mvn clean install
 
@@ -63,14 +63,18 @@ jobs:
 
             echo "aws_secret_access_key = ${{ env.AWS_SECRET }}" >>
             ~/.aws/credentials
-        - name: "Login to Amazon ECR"
-          run: aws ecr get-login-password --region ${{ env.AWS_REGION }} |
-                docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
-        - name: "Push image to Amazon ECR"
-          run: docker build -t backend:latest .
-                docker tag backend:latest ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend:latest
-                docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/backend:latest
+        - name: "Login to Amazon ECR"
+          run: aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 550010839429.dkr.ecr.eu-central-1.amazonaws.com
+        - name: "Build the docker image"
+          run: docker build -t backend .
+
+        - name: "Tag the docker image"
+          run: docker tag backend:latest 550010839429.dkr.ecr.eu-central-1.amazonaws.com/backend:latest
+        - name: "Push the docker image to Amazon ECR"
+          run: docker push 550010839429.dkr.ecr.eu-central-1.amazonaws.com/backend:latest
+
+
 
 
   pipelinePassed:
