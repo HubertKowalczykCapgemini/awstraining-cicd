@@ -37,7 +37,9 @@ jobs:
       AWS_KEY: '${{ secrets[format(''{0}_AWS_KEY'', inputs.hubEnv)] }}'
       AWS_SECRET: '${{ secrets[format(''{0}_AWS_SECRET'', inputs.hubEnv)] }}'
       AWS_REGION: '${{ needs.properties.outputs.REGION }}'
+      CLUSTER_NAME: '${{ needs.properties.outputs.CLUSTER_NAME }}'
       SERVICE_NAME: '${{ needs.properties.outputs.SERVICE_NAME }}'
+      TASK_NAME: '${{ needs.properties.outputs.TASK_NAME }}'
     #    TODO Checkout, JDK 17 setup, Maven setup, Build with JaCoCo, Configure AWS credentials, Login to Amazon ECR, Push image to Amazon ECR, Deploy Amazon ECS task definition, Run smoke tests if not skipped
 
 
@@ -82,6 +84,15 @@ jobs:
         - name: "Push the docker image to Amazon ECR"
           run: docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:latest
 
+        - name: "Deploy Amazon ECS task definition"
+          run: |
+                aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ env.SERVICE_NAME }} --force-new-deployment --region ${{ env.AWS_REGION }}
+                
+        - name: "Run smoke tests if not skipped"
+          if: ${{ !inputs.skipSmokeTests }}
+          run: |
+            echo "Running smoke tests..."
+            mvn test -Dtest=SmokeTestSuite
 
 
 
