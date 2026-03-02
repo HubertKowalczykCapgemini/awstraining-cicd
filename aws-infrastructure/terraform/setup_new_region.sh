@@ -100,7 +100,7 @@ else
   else
     ./$SCRIPT $PROFILE $REGION common/general/create-remote-state-bucket $ACTION
   fi
-  # ./$SCRIPT $PROFILE $REGION common/general/dynamo-lock $ACTION
+  ./$SCRIPT $PROFILE $REGION common/general/dynamo-lock $ACTION
   ./$SCRIPT $PROFILE $REGION environments/$PROFILE/$HUB/$REGION/globals $ACTION
   ./$SCRIPT $PROFILE $REGION common/networking/vpc $ACTION
   ./$SCRIPT $PROFILE $REGION common/networking/securitygroups $ACTION
