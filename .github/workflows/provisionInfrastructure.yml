@@ -1,20 +1,26 @@
-#name: Provision with Terraform
-#run-name: Provision with Terraform
-#
-#on:
-#  workflow_dispatch:
-#    inputs:
-#      hubEnv:
-#        description: Select target hub and stage
-#        required: true
-#        type: choice
-#        options:
-#          - 'BACKEND_EMEA_TEST'
-#
-#
-#jobs:
-#  properties:
-#    #    TODO call datacenterMap reusable workflow to get AWS_ACCOUNT, PROFILE, REGION and other variables based on hubEnv input
-#
-#  terraform:
-#    #    TODO Checkout, Install Terraform, Configure AWS profile, Run Terraform apply with setup_new_region.sh script and w2.sh script to provision infrastructure in the new region
+name: Provision with Terraform
+run-name: Provision with Terraform
+
+on:
+ workflow_dispatch:
+   inputs:
+     hubEnv:
+       description: Select target hub and stage
+       required: true
+       type: choice
+       options:
+         - 'BACKEND_EMEA_TEST'
+
+
+jobs:
+ properties:
+      properties:
+    uses: ./.github/workflows/datacenterMap.yml
+    with:
+      hubEnv: ${{ inputs.hubEnv }}
+    secrets: inherit
+
+   #    TODO call datacenterMap reusable workflow to get AWS_ACCOUNT, PROFILE, REGION and other variables based on hubEnv input
+
+ terraform:
+   #    TODO Checkout, Install Terraform, Configure AWS profile, Run Terraform apply with setup_new_region.sh script and w2.sh script to provision infrastructure in the new region
