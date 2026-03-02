@@ -44,9 +44,9 @@ jobs:
             distribution: 'corretto'
             java-version: '17'
         - name: "build with maven"
-          run: mvn clean package -Djacoco.skip=true
-        - name: "test with maven and generate jacoco report"
-          run: mvn test jacoco:report
+          run: mvn clean install
+        - name: "test with maven"
+          run: mvn clean test
 
   pipelinePassed:
     runs-on: ubuntu-latest
