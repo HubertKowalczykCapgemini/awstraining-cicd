@@ -59,7 +59,7 @@ jobs:
           uses: "docker/setup-buildx-action@v2"
 
         - name: "Build & Test with JaCoCo"
-          run: mvn clean verify
+          run: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package org.jacoco:jacoco-maven-plugin:report
 
         - name: "Configure AWS credentials"
           run: >
@@ -84,15 +84,21 @@ jobs:
         - name: "Push the docker image to Amazon ECR"
           run: docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:latest
 
+        # - name: "Deploy Amazon ECS task definition"
+        #   run: |
+        #         aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ env.SERVICE_NAME }} --force-new-deployment --region ${{ env.AWS_REGION }}
         - name: "Deploy Amazon ECS task definition"
-          run: |
-                aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ env.SERVICE_NAME }} --force-new-deployment --region ${{ env.AWS_REGION }}
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          with:
+            task-definition: ${{ env.TASK_NAME }}
+            service: ${{ env.SERVICE_NAME }}
+            cluster: ${{ env.CLUSTER_NAME }}
+            wait-for-service-stability: true
 
-        - name: "Run smoke tests if not skipped"
+        - name: "Run smoke tests"
           if: ${{ !inputs.skipSmokeTests }}
           run: |
-            echo "Running smoke tests..."
-            mvn -pl api-backend-v1-test test -Dtest=SmokeBackendTest
+            mvn -f pom.xml clean test -P st,BACKEND_EMEA_TEST
 
 
 
