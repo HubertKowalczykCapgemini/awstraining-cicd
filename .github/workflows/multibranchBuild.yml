@@ -44,7 +44,7 @@ jobs:
             # Add your build commands here
             pwd
             ls
-            cd 
+            cd app/
             sudo apt-get update
             sudo apt-get install -y 
             sudo apt install java-17-amazon-corretto-jdk -y
