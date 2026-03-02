@@ -43,8 +43,10 @@ jobs:
           with:
             distribution: 'corretto'
             java-version: '17'
-        - name: "buld with maven"
+        - name: "build with maven"
           run: mvn clean package -Djacoco.skip=true
+        - name: "test with maven and generate jacoco report"
+          run: mvn test jacoco:report
 
   pipelinePassed:
     runs-on: ubuntu-latest
