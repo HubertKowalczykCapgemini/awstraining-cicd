@@ -20,6 +20,7 @@ on:
        type: choice
        options:
         - BACKEND_EMEA_TEST
+       default: BACKEND_EMEA_TEST
     
 jobs:
   properties:
