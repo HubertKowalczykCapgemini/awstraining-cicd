@@ -60,6 +60,9 @@ jobs:
         - name: "test with maven"
           run: mvn clean test
 
+        - name: "Clean package with maven"
+          run: mvn clean package
+
         - name: "Configure AWS credentials"
           run: >
             mkdir -p ~/.aws
