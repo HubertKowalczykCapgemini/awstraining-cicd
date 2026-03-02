@@ -31,19 +31,25 @@ jobs:
       AWS_SECRET: '${{ secrets[format(''{0}_AWS_SECRET'', inputs.hubEnv)] }}'
       AWS_REGION: '${{ needs.properties.outputs.REGION }}'
     #    TODO Checkout, JDK 17 setup, Maven setup, Build with JaCoCo, Configure AWS credentials, Login to Amazon ECR, Push image to Amazon ECR, Deploy Amazon ECS task definition, Run smoke tests if not skipped
-#
+
+
     steps:
-      - name: build
-        run: |
-          echo "Building the application..."
-          # Add your build commands here
-          pwd
-          ls -la
-          sudo apt-get update
-          sudo apt-get install -y 
-          sudo apt install java-17-amazon-corretto-jdk -y
-          sudo apt install maven -y
-          mvn clean install
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 0
+        - name: build
+          run: |
+            echo "Building the application..."
+            # Add your build commands here
+            pwd
+            ls -la
+            cd 
+            sudo apt-get update
+            sudo apt-get install -y 
+            sudo apt install java-17-amazon-corretto-jdk -y
+            sudo apt install maven -y
+            mvn clean install
 
   pipelinePassed:
     runs-on: ubuntu-latest
