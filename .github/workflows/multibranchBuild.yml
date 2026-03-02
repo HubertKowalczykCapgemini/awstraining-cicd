@@ -37,6 +37,7 @@ jobs:
       AWS_KEY: '${{ secrets[format(''{0}_AWS_KEY'', inputs.hubEnv)] }}'
       AWS_SECRET: '${{ secrets[format(''{0}_AWS_SECRET'', inputs.hubEnv)] }}'
       AWS_REGION: '${{ needs.properties.outputs.REGION }}'
+      SERVICE_NAME: '${{ needs.properties.outputs.SERVICE_NAME }}'
     #    TODO Checkout, JDK 17 setup, Maven setup, Build with JaCoCo, Configure AWS credentials, Login to Amazon ECR, Push image to Amazon ECR, Deploy Amazon ECS task definition, Run smoke tests if not skipped
 
 
@@ -75,14 +76,14 @@ jobs:
             ~/.aws/credentials
 
         - name: "Login to Amazon ECR"
-          run: aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 550010839429.dkr.ecr.eu-central-1.amazonaws.com
+          run: aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
         - name: "Build the docker image"
-          run: docker build -t backend .
+          run: docker build -t ${{ env.SERVICE_NAME }} .
 
         - name: "Tag the docker image"
-          run: docker tag backend:latest 550010839429.dkr.ecr.eu-central-1.amazonaws.com/backend:latest
+          run: docker tag ${{ env.SERVICE_NAME }}:latest ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:latest
         - name: "Push the docker image to Amazon ECR"
-          run: docker push 550010839429.dkr.ecr.eu-central-1.amazonaws.com/backend:latest
+          run: docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:latest
 
 
 
