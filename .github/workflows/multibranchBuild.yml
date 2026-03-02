@@ -14,6 +14,13 @@ on:
         type: boolean
         required: false
         default: false
+      hubEnv:
+       description: Select target hub and stage
+       required: true
+       type: choice
+       options:
+        - BACKEND_EMEA_TEST
+    
 jobs:
   properties:
     uses: ./.github/workflows/datacenterMap.yml
