@@ -47,6 +47,8 @@ jobs:
           run: mvn clean install
         - name: "test with maven"
           run: mvn clean test
+        - name: "build with JaCoCo"
+          run: mvn jacoco:report
 
   pipelinePassed:
     runs-on: ubuntu-latest
