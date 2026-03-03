@@ -16,7 +16,7 @@ output "availability_zones" {
 
 output "backend_service_deployment_desired_task_count" {
   description = "Desired Fargate tasks in cluster"
-  value = 3
+  value = 1
 }
 
 output "endpoints" {
