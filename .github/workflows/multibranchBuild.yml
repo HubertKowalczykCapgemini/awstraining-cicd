@@ -81,9 +81,6 @@ jobs:
         - name: "Push the docker image to Amazon ECR"
           run: docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:latest
 
-        # - name: "Deploy Amazon ECS task definition"
-        #   run: |
-        #         aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ env.SERVICE_NAME }} --force-new-deployment --region ${{ env.AWS_REGION }}
         - name: "Deploy Amazon ECS task definition"
           uses: aws-actions/amazon-ecs-deploy-task-definition@v1
           with:
