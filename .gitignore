@@ -153,6 +153,6 @@ terraform.rc
 .project
 .settings/
 target/
-
+secret.json
 # Local logs
 local/filebeat_ingest_data/*
