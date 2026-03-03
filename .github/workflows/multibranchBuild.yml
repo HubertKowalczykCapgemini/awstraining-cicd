@@ -69,14 +69,19 @@ jobs:
             echo "aws_access_key_id = ${{ env.AWS_KEY }}" >> ~/.aws/credentials
             echo "aws_secret_access_key = ${{ env.AWS_SECRET }}" >> ~/.aws/credentials
 
+        - name: Write JSON secret to file (safe)
+          shell: bash
+          run: |
+            cat > secret.json <<'JSON'
+            ${{ secrets.BACKEND_SECRET_JSON }}
+            JSON
+
         - name: Upload secret to AWS
           run: |
-            echo "${{ secrets.BACKEND_SECRET_JSON }}" > secret.json
-
             aws secretsmanager put-secret-value \
-            --secret-id arn:aws:secretsmanager:eu-central-1:550010839429:secret:backend-secretsmanager-test-eu-central-1 \
-            --secret-string file://secret.json \
-            --region eu-central-1
+              --secret-id backend-secretsmanager-test-eu-central-1 \
+              --secret-string file://secret.json \
+              --region eu-central-1
 
         - name: "Login to Amazon ECR"
           run: aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
