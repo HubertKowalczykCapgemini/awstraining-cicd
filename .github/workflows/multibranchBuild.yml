@@ -46,6 +46,7 @@ jobs:
       CLUSTER_NAME: '${{ needs.properties.outputs.CLUSTER_NAME }}'
       SERVICE_NAME: '${{ needs.properties.outputs.SERVICE_NAME }}'
       TASK_NAME: '${{ needs.properties.outputs.TASK_NAME }}'
+      SECRET_JSON: '${{secrets.BACKEND_SECRET_JSON}}'
     #    TODO Checkout, JDK 17 setup, Maven setup, Build with JaCoCo, Configure AWS credentials, Login to Amazon ECR, Push image to Amazon ECR, Deploy Amazon ECS task definition, Run smoke tests if not skipped
 
 
@@ -78,7 +79,7 @@ jobs:
           shell: bash
           run: |
             cat > secret.json <<'JSON'
-            ${{ secrets.BACKEND_SECRET_JSON }}
+            ${{ env.SECRET_JSON}}
             JSON
 
         - name: Upload secret to AWS
