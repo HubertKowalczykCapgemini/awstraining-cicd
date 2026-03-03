@@ -21,6 +21,11 @@ on:
        options:
         - BACKEND_EMEA_TEST
        default: BACKEND_EMEA_TEST
+      wait-for-service-stability:
+        description: Select wait for service stability option
+        type: boolean
+        required: false       
+        default: false
     
 jobs:
   properties:
@@ -95,13 +100,24 @@ jobs:
         - name: "Push the docker image to Amazon ECR"
           run: docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:latest
 
-        - name: "Deploy Amazon ECS task definition"
+        - name: "Deploy Amazon ECS task definition (with stability check)"
           uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          if: ${{ inputs.wait-for-service-stability }}
+          with:
+            task-definition: assembly-fargate/src/main/resources/fargate/BACKEND_EMEA_TEST/task.json
+            service: ${{ env.SERVICE_NAME }}
+            cluster: ${{ env.CLUSTER_NAME }}
+            wait-for-service-stability: true
+
+        - name: "Deploy Amazon ECS task definition (without stability check)"
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          if: ${{ !inputs.wait-for-service-stability }}
           with:
             task-definition: assembly-fargate/src/main/resources/fargate/BACKEND_EMEA_TEST/task.json
             service: ${{ env.SERVICE_NAME }}
             cluster: ${{ env.CLUSTER_NAME }}
             wait-for-service-stability: false
+
 
         - name: "Run smoke tests"
           if: ${{ !inputs.skipSmokeTests }}
