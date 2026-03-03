@@ -35,15 +35,12 @@ jobs:
           terraform_version: 1.7.0
           terraform_wrapper: false
       - name: Configure AWS profile
-        run: >
-          mkdir -p ~/.aws
-
-          echo "[${{ env.AWS_PROFILE }}]" > ~/.aws/credentials
-
-          echo "aws_access_key_id = ${{ env.AWS_KEY }}" >> ~/.aws/credentials
-
-          echo "aws_secret_access_key = ${{ env.AWS_SECRET }}" >>
-          ~/.aws/credentials
+        uses : aws-actions/configure-aws-credentials@v4
+        with: 
+            aws-access-key-id: ${{ env.AWS_KEY }}
+            aws-secret-access-key: ${{ env.AWS_SECRET }}
+            aws-region: ${{ env.AWS_REGION }}
+            
       - name: Run Terraform apply
         run: >
           cd aws-infrastructure/terraform
